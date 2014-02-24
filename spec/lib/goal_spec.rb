@@ -160,4 +160,8 @@ describe Goal do
       end
     end
   end
+
+  context "XML serialization/deserialization" do
+    
+  end
 end

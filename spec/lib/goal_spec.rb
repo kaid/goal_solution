@@ -176,6 +176,7 @@ describe Goal do
       goal = nil
 
       agoal = Goal.load_xml path
+
       agoal.to_xml.should eq xml
       FileUtils.rm(path)
     end

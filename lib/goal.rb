@@ -6,15 +6,15 @@ require "./lib/serialization"
 class Goal
   include Serialization
 
-  attr_reader   :id, :start, :end, :under_id
-  attr_reader   :name, :desc, :under
+  attr_reader   :id, :start, :end
+  attr_reader   :name, :desc
   attr_reader   :init_desc, :finish_desc
   attr_accessor :previous, :next
   attr_reader   :previous_id, :next_id
   attr_reader   :section, :from, :to
 
-  serialize :id, :under_id, :name, :desc, :init_desc,
-            :finish_desc, :previous_id, :next_id, :section_type
+  serialize :id, :name, :desc, :init_desc,
+            :finish_desc, :previous_id, :next_id
 
   def initialize(attrs = {})
     self.update(attrs)
@@ -39,6 +39,29 @@ class Goal
     self
   end
 
+  def solutions
+    (self.start + self.end).map do |sgoal|
+      sec = sgoal.section_type
+      next if sec == :end && sgoal.in_full_solution?
+      current_goal = sgoal
+      solution = Solution.new
+
+      while current_goal
+        if sec == :start
+          solution << current_goal
+          current_goal = current_goal.next
+        end
+
+        if sec == :end
+          solution.unshift(current_goal)
+          current_goal = current_goal.previous
+        end
+      end
+
+      solution
+    end.compact
+  end
+
   def from
     section_for_kind(Start)
   end
@@ -49,13 +72,11 @@ class Goal
 
   def previous=(goal)
     return self.update(:previous => nil) if goal.nil?
-    goal.update(:under => self.under) if goal.under.nil?
     goal.update(:next => self.update(:previous => goal))
   end
 
   def next=(goal)
     return self.update(:next => nil) if goal.nil?
-    goal.update(:under => self.under) if goal.under.nil?
     goal.update(:previous => self.update(:next => goal))
   end
 
@@ -64,7 +85,6 @@ class Goal
     raise InvalidOperation.new("#remove") if invalid
     self.next.previous = self.previous
     self.previous.next = self.next
-    @under = nil
     self.class.all.delete_if {|goal| goal.id == self.id}
   end
 
@@ -98,15 +118,13 @@ class Goal
     self.section.class.to_s.downcase[6..-1].to_sym
   end
 
-  def under_id
-    rel_id(:under)
-  end
-
   def previous_id
+    return "::START" if self.from
     rel_id(:previous)
   end
 
   def next_id
+    return "::END" if self.to
     rel_id(:next)
   end
 
@@ -155,18 +173,18 @@ class Goal
   class << self
     def add_before(goal)
       raise InvalidOperation.new("::add_before") if goal.previous || goal.from
-      goal.previous = self.new(:next => goal, :under => goal.under)
+      goal.previous = self.new(:next => goal)
     end
 
     def add_after(goal)
       raise InvalidOperation.new("::add_after") if goal.next || goal.to
-      goal.next = self.new(:previous => goal, :under => goal.under)
+      goal.next = self.new(:previous => goal)
     end
 
     def add_between(goal1, goal2)
       invalid = goal1.next != goal2 || goal2.previous != goal1
       raise InvalidOperation.new("::add_between") if invalid
-      goal = self.new(:previous => goal1, :next => goal2, :under => goal1.under)
+      goal = self.new(:previous => goal1, :next => goal2)
       goal1.next = goal
       goal2.previous = goal
     end

@@ -3,3 +3,4 @@
 *.swp
 .DS_*
 .bundle
+goals/*.xml

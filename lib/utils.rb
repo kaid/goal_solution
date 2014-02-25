@@ -1,4 +1,14 @@
 class Goal
+  class Solution < Array
+    def solution_xml(builder)
+      builder.solution {
+        self.each do |goal|
+          goal.goal_xml(builder)
+        end
+      }
+    end
+  end
+
   class Section < Array
     attr_reader :master
 
@@ -13,7 +23,7 @@ class Goal
     end
 
     def <<(goal)
-      goal.update(:under => self.master, :section => self)
+      goal.update(:section => self)
       super(goal)
     end
 

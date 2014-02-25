@@ -26,44 +26,22 @@ class Goal
         builder.goal {
           fields_xml(builder)
 
-          builder.solutions {
-            [:start, :end].each do |sec|
-              section = self.send(sec)
-
-              if section.any?
-                section.each do |sgoal|
-                  next if sec == :end && sgoal.in_full_solution?
-
-                  current_goal = sgoal
-
-                  builder.solution {
-                    while current_goal
-                      current_goal.goal_xml(builder)
-                      current_goal = current_goal.next if sec == :start
-                      current_goal = current_goal.previous if sec == :end
-                    end
-                  }
-                end
+          if self.solutions.any?
+            builder.solutions {
+              self.solutions.each do |solution|
+                solution.solution_xml(builder)
               end
-            end
-          }
+            }
+          end
         }
       end
 
       def init_from_deserialization
-        [:under, :next, :previous].each do |field|
-          _rel_id = instance_variable_get("@#{field}_id")
-          if _rel_id
-            _rel = self.class.find(_rel_id)
-            instance_variable_set("@#{field}", _rel)
-          end
-        end
-
-        [:start, :end].each do |sec|
-          _sec_type = instance_variable_get("@section_type")
-          self.under.send(sec) << self if self.under && _sec_type == sec.to_s
-        end
-
+        root = self.class.all.first
+        root.start << self if @previous_id == "::START"
+        root.end   << self if @next_id == "::END"
+        self.previous = self.class.find(@previous_id)
+        self.next = self.class.find(@next_id)
         self
       end
 
@@ -84,15 +62,18 @@ class Goal
         @serialize_fields ||= []
       end
 
+      def parse(doc)
+        goals = doc.xpath("//goal")
+        goals.xpath("//solutions").remove
+        goals.map do |doc|
+          attrs = Hash.from_xml(doc.to_xml)["goal"]
+          Goal.new(attrs).init_from_deserialization
+        end.first
+      end
+
       def load_xml(file_path)
         File.open(file_path, "r") do |file|
-          doc = Nokogiri::XML(file)
-          goals = doc.xpath("//goal")
-          goals.xpath("//solutions").remove
-          goals.map do |doc|
-            attrs = Hash.from_xml(doc.to_xml)["goal"]
-            Goal.new(attrs)
-          end.map {|goal| goal.init_from_deserialization}.first
+          self.parse Nokogiri::XML(file)
         end
       end
     end

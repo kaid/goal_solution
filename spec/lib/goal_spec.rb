@@ -162,6 +162,22 @@ describe Goal do
   end
 
   context "XML serialization/deserialization" do
-    
+    specify do
+      goal = Goal.new
+      goal.start.create
+      goal.end.create
+      Goal.add_after(goal.start.first)
+      Goal.add_before(goal.end.first)
+      goal.start.first.next.link(goal.end.first.previous)
+
+      xml = goal.to_xml
+      path = goal.save.path
+      Goal.instance_variable_set("@all", [])
+      goal = nil
+
+      agoal = Goal.load_xml path
+      agoal.to_xml.should eq xml
+      FileUtils.rm(path)
+    end
   end
 end

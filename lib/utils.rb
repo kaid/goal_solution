@@ -1,23 +1,24 @@
 class Goal
   class Section < Array
-    attr_reader :goal
+    attr_reader :master
 
-    def self.make_for(goal)
-      self.new.attach(goal)
+    def self.make_for(master)
+      self.new.attach(master)
     end
 
     def create(params = {})
-      node = Goal.new(params.merge(:section => self))
-      self << node
-      node
+      goal = Goal.new(params)
+      self << goal
+      goal
     end
 
-    def <<(node)
-      super(node)
+    def <<(goal)
+      goal.update(:under => self.master, :section => self)
+      super(goal)
     end
 
     def attach(goal)
-      @goal = goal
+      @master = goal
       self
     end
   end

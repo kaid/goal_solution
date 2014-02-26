@@ -1,39 +1,117 @@
 class Goal
-  class Solution < Array
-    def solution_xml(builder)
+  class InvalidOperation < Exception
+    module Helpers
+      private
+
+      def invalid_op(string, &invalid)
+        raise InvalidOperation.new("#{self.class.to_s}#{string}") if invalid.call
+      end
+    end
+  end
+
+  class Solution
+    HEAD = "::START"
+    TAIL = "::END"
+
+    include InvalidOperation::Helpers
+
+    attr_reader :head, :tail
+    attr_accessor :master
+
+    def self.attach_to(goal)
+      solution = self.new
+      solution.master = goal
+      self.all << solution
+      solution
+    end
+
+    def self.all
+      @all ||= []
+    end
+
+    def add_head
+      invalid_op("#add_head") {head}
+      @head = Goal.new
+      head.previous = HEAD
+      head
+    end
+
+    def add_tail
+      invalid_op("#add_tail") {tail}
+      @tail = Goal.new
+      tail.next = TAIL
+      tail
+    end
+
+    def head_branch
+      Branch.new(head: self.head)
+    end
+
+    def tail_branch
+      Branch.new(tail: self.tail)
+    end
+
+    def list
+      head_list = head_branch.list
+      tail_list = tail_branch.list
+      return head_list if head_list == tail_list
+      head_list + tail_list
+    end
+
+    def xml_with(builder)
       builder.solution {
-        self.each do |goal|
-          goal.goal_xml(builder)
+        self.list.each do |goal|
+          goal.xml_with(builder)
         end
       }
     end
-  end
 
-  class Section < Array
-    attr_reader :master
-
-    def self.make_for(master)
-      self.new.attach(master)
-    end
-
-    def create(params = {})
-      goal = Goal.new(params)
-      self << goal
-      goal
-    end
-
-    def <<(goal)
-      goal.update(:section => self)
-      super(goal)
-    end
-
-    def attach(goal)
-      @master = goal
-      self
+    module GoalMethods
+      def add_solution
+        Solution.attach_to(self)
+      end
+      
+      def solutions
+        Solution.all.select do |solution|
+          solution.master == self
+        end
+      end
     end
   end
 
-  class Start < Section; end
-  class End < Section; end
-  class InvalidOperation < Exception; end
+  class Branch
+    attr_accessor :head, :tail
+
+    def initialize(head: nil, tail: nil)
+      @head = head
+      @tail = tail
+    end
+
+    def list
+      return list_from(:head) if head
+      return list_from(:tail) if tail
+      []
+    end
+
+    def ==(branch)
+      self.list == branch.list
+    end
+
+    private
+
+    def list_from(what)
+      current = self.send(what)
+      result  = []
+
+      method, dir = "<<",      "next"     if what == :head
+      method, dir = "unshift", "previous" if what == :tail
+
+      while current
+        result.send(method, current)
+        current = current.send(dir)
+      end
+
+      result
+    end
+  end
 end

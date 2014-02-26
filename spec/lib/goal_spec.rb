@@ -4,63 +4,51 @@ describe Goal do
   let(:goal) {Goal.new}
   subject    {goal}
 
-  its(:start) {should be_an Goal::Section}
-  its(:end)   {should be_an Goal::Section}
+  describe Goal::Solution do
+    let(:solution) {goal.add_solution}
 
-  describe Goal::Section do
-    subject {Goal::Section.new}
+    describe "#attach_to(goal)" do
+      subject {solution}
 
-    it {should be_an Array}
-  end
-
-  shared_examples "Goal::Section" do |klass|
-    meth = :start if klass == Goal::Start
-    meth = :end   if klass == Goal::End
-
-    let(:section) {goal.send meth}
-
-    specify {section.should be_a Goal::Section}
-
-    describe "#create(params)" do
-      subject {section.create}
-      
-      it      {should be_a Goal}
-      specify {section.should include subject}
-
-      before do
-        @from, @to = section, nil if klass == Goal::Start
-        @from, @to = nil, section if klass == Goal::End
-      end
-
-      its(:section) {should be section}
-      its(:from)    {should be @from}
-      its(:to)      {should be @to}
+      its(:master) {should be goal}
+      specify {Goal::Solution.all.should include solution}
     end
   end
 
-  describe Goal::Start do
-    it_should_behave_like "Goal::Section", Goal::Start
+  describe Goal::Branch do
+    class DummyElement
+      attr_reader :previous, :next
+
+      def initialize(previous: nil, anext: nil)
+        @previous = previous
+        @next     = anext
+      end
+    end
+
+    let(:dummy1)  {DummyElement.new}
+    let(:dummy2)  {DummyElement.new}
+    let(:head)    {DummyElement.new(anext: dummy1)}
+    let(:tail)    {DummyElement.new(previous: dummy2)}
+    let(:branch1) {Goal::Branch.new(head: head)}
+    let(:branch2) {Goal::Branch.new(tail: tail)}
+
+    describe "#list" do
+      specify {branch1.list.should eq [head, dummy1]}
+      specify {branch2.list.should eq [dummy2, tail]}
+    end
   end
 
-  describe Goal::End do
-    it_should_behave_like "Goal::Section", Goal::End
-  end
+  describe Goal::Add do
+    let(:solution) {goal.add_solution}
+    let(:head)     {solution.add_head}
+    let(:tail)     {solution.add_tail}
 
-  let(:node1) {goal.start.last}
-  let(:node2) {goal.end.last}
-
-  before do
-    goal.start.create
-    goal.end.create
-  end
-
-  context "add node before/after half linked node" do
-    shared_examples "create&link node" do |what|
+    shared_examples "Goal::Add" do |what|
       which, awhich = :previous, :next if what == :before
       which, awhich = :next, :previous if what == :after
 
-      let(:node) {return node2 if what == :before;node1 if what == :after}
-      let(:op)   {Goal.send "add_#{what}", node}
+      let(:node) {return tail if what == :before;head if what == :after}
+      let(:op)   {node.send "add_#{what}"}
 
       it "changes node.#{which}" do
         node.send("#{which}").should be nil
@@ -72,113 +60,123 @@ describe Goal do
 
       context "invalid operation" do
         before do
-          node1.instance_variable_set(:"@next", node2)
-          node2.instance_variable_set(:"@previous", node1)
+          head.instance_variable_set("@next", tail)
+          tail.instance_variable_set("@previous", head)
         end
 
         it {expect{op}.to raise_error(Goal::InvalidOperation)}
       end
     end
 
-    describe "::add_before(node)" do
-      it_should_behave_like "create&link node", :before
+    describe "#add_before(node)" do
+      it_should_behave_like "Goal::Add", :before
     end
 
-    describe "::add_after(node)" do
-      it_should_behave_like "create&link node", :after
+    describe "#add_after(node)" do
+      it_should_behave_like "Goal::Add", :after
     end
   end
 
-  context "inserting and removing node" do
+  describe Goal::Insert do
+    let(:solution) {goal.add_solution}
+    let(:head)     {solution.add_head}
+    let(:tail)     {solution.add_tail}
+
     before do
-      node1.instance_variable_set(:"@next", node2)
-      node2.instance_variable_set(:"@previous", node1)
+      head.instance_variable_set("@next", tail)
+      tail.instance_variable_set("@previous", head)
     end
 
-    describe "::add_between(node1, node2)" do
-      let(:op) {Goal.add_between(node1, node2)}
+    describe "#insert_between(node)" do
+      let(:op) {head.insert_between(tail)}
 
-      it "changes node1's next" do
-        node1.next.should be node2
+      it "changes head's next" do
+        head.next.should be tail
         node = op
-        node1.next.should be node
+        head.next.should be node
       end
 
-      it "changes node2's previous" do
-        node2.previous.should be node1
+      it "changes tail's previous" do
+        tail.previous.should be head
         node = op
-        node2.previous.should be node
+        tail.previous.should be node
       end
 
-      specify {op.previous.should be node1}
-      specify {op.next.should be node2}
+      specify {op.previous.should be head}
+      specify {op.next.should be tail}
     end
 
     describe "#remove" do
-      let(:node) {Goal.add_between(node1, node2)}
+      let(:node) {head.insert_between(tail)}
       let(:op)   {node.remove}
 
-      it {expect{op}.to change{node1.next}.from(node).to(node2)}
-      it {expect{op}.to change{node2.previous}.from(node).to(node1)}
+      it {expect{op}.to change{head.next}.from(node).to(tail)}
+      it {expect{op}.to change{tail.previous}.from(node).to(head)}
     end
   end
 
-  context "link half linked nodes" do
-    describe "#link(node)" do
-      let(:op1) {node1.link(node2)}
-      let(:op2) {node2.link(node1)}
+  describe Goal::Link do
+    let(:solution) {goal.add_solution}
+    let(:head)     {solution.add_head}
+    let(:tail)     {solution.add_tail}
 
-      it {expect{op1}.to change{node1.next}.from(nil).to(node2)}
-      it {expect{op1}.to change{node2.previous}.from(nil).to(node1)}
-      it {expect{op2}.to change{node1.next}.from(nil).to(node2)}
-      it {expect{op2}.to change{node2.previous}.from(nil).to(node1)}
+    describe "#link(node)" do
+      let(:op1) {head.link(tail)}
+      let(:op2) {tail.link(head)}
+
+      it {expect{op1}.to change{head.next}.from(nil).to(tail)}
+      it {expect{op1}.to change{tail.previous}.from(nil).to(head)}
+      it {expect{op2}.to change{head.next}.from(nil).to(tail)}
+      it {expect{op2}.to change{tail.previous}.from(nil).to(head)}
 
       context "invalid operation" do
         let(:node) {Goal.new}
-        let(:op)   {node.link(node1)}
+        let(:op)   {node.link(head)}
 
         it {expect{op}.to raise_error(Goal::InvalidOperation)}
       end
     end
     
     describe "#unlink(node)" do
-      let(:op1) {node1.unlink(node2)}
-      let(:op2) {node2.unlink(node1)}
+      let(:op1) {head.unlink(tail)}
+      let(:op2) {tail.unlink(head)}
 
-      before {node1.link(node2)}
+      before {head.link(tail)}
 
-      it {expect{op1}.to change{node1.next}.from(node2).to(nil)}
-      it {expect{op1}.to change{node2.previous}.from(node1).to(nil)}
-      it {expect{op2}.to change{node1.next}.from(node2).to(nil)}
-      it {expect{op2}.to change{node2.previous}.from(node1).to(nil)}
+      it {expect{op1}.to change{head.next}.from(tail).to(nil)}
+      it {expect{op1}.to change{tail.previous}.from(head).to(nil)}
+      it {expect{op2}.to change{head.next}.from(tail).to(nil)}
+      it {expect{op2}.to change{tail.previous}.from(head).to(nil)}
 
       context "invalid operation" do
         let(:node) {Goal.new}
-        let(:op)   {node.link(node1)}
+        let(:op)   {node.link(head)}
 
         it {expect{op}.to raise_error(Goal::InvalidOperation)}
       end
     end
   end
 
-  context "XML serialization/deserialization" do
-    specify do
-      goal = Goal.new
-      goal.start.create
-      goal.end.create
-      Goal.add_after(goal.start.first)
-      Goal.add_before(goal.end.first)
-      goal.start.first.next.link(goal.end.first.previous)
+#   context "XML serialization/deserialization" do
+#     specify do
+#       goal = Goal.new
+#       goal.start.create
+#       goal.end.create
+#       Goal.add_after(goal.start.first)
+#       Goal.add_before(goal.end.first)
+#       goal.start.first.next.link(goal.end.first.previous)
 
-      xml = goal.to_xml
-      path = goal.save.path
-      Goal.instance_variable_set("@all", [])
-      goal = nil
+#       xml = goal.to_xml
 
-      agoal = Goal.load_xml path
+#       path = goal.save.path
+#       Goal.instance_variable_set("@all", [])
+#       goal = nil
 
-      agoal.to_xml.should eq xml
-      FileUtils.rm(path)
-    end
-  end
+#       agoal = Goal.load_xml path
+
+#       agoal.to_xml.should eq xml
+#       FileUtils.rm(path)
+#     end
+#   end
+# e
 end

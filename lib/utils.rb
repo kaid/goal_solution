@@ -29,17 +29,17 @@ class Goal
       @all ||= []
     end
 
-    def add_head
+    def add_head(goal = nil)
       invalid_op("#add_head") {head}
-      @head = Goal.new
-      head.previous = HEAD
+      @head = goal || Goal.new
+      head.previous = HEAD if head.next.nil?
       head
     end
 
-    def add_tail
+    def add_tail(goal = nil)
       invalid_op("#add_tail") {tail}
-      @tail = Goal.new
-      tail.next = TAIL
+      @tail = goal || Goal.new
+      tail.next = TAIL if tail.next.nil?
       tail
     end
 
@@ -64,6 +64,15 @@ class Goal
           goal.xml_with(builder)
         end
       }
+    end
+
+    def init_with(xml)
+      xml.children.each do |goal_el|
+        goal = Goal.new.init_with(goal_el)
+        self.add_head(goal) if goal.instance_variable_get("@previous_id") == HEAD
+        self.add_tail(goal) if goal.instance_variable_get("@next_id") == TAIL
+      end
+      self
     end
 
     module GoalMethods
@@ -99,18 +108,23 @@ class Goal
 
     private
 
-    def list_from(what)
+    def traverse(what)
       current = self.send(what)
-      result  = []
 
-      method, dir = "<<",      "next"     if what == :head
-      method, dir = "unshift", "previous" if what == :tail
+      dir = :next     if what == :head
+      dir = :previous if what == :tail
 
-      while current
-        result.send(method, current)
+      while current.send(dir).is_a?(Goal)
+        yield current
         current = current.send(dir)
       end
+    end
 
+    def list_from(what)
+      result  = []
+      method = :<<      if what == :head
+      method = :unshift if what == :tail
+      traverse(what) {|current| result.send method, current}
       result
     end
   end

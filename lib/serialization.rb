@@ -11,7 +11,7 @@ class Goal
     module InstanceMethods
       def to_xml
         Nokogiri::XML::Builder.new do |builder|
-          self.goal_xml(builder)
+          self.xml_with(builder)
         end.to_xml
       end
 
@@ -26,26 +26,28 @@ class Goal
         builder.goal {
           fields_xml(builder)
 
-          # if self.solutions.any?
-          #   builder.solutions {
-          #     self.solutions.each do |solution|
-          #       solution.solution_xml(builder)
-          #     end
-          #   }
-          # end
+          if self.solutions.any?
+            builder.solutions {
+              self.solutions.each do |solution|
+                solution.xml_with(builder)
+              end
+            }
+          end
         }
       end
 
-      # def init_from_deserialization
-      #   root = self.class.all.first
-
-      #   root.start << self if @previous_id == "::START"
-      #   root.end   << self if @next_id == "::END"
-
-      #   self.previous = self.class.find(@previous_id)
-      #   self.next     = self.class.find(@next_id)
-      #   self
-      # end
+      def init_with(xml)
+        xml.children.each do |child|
+          if child.name == "solutions"
+            child.children.each do |solution_el|
+              self.add_solution.init_with(solution_el)
+            end
+            next self
+          end
+          self.update(child.name => child.text)
+        end
+        self
+      end
 
       def save
         path = File.expand_path("../../goals/#{self.id}.xml", __FILE__)
@@ -64,20 +66,22 @@ class Goal
         @serialize_fields ||= []
       end
 
-      # def parse(doc)
-      #   goals = doc.xpath("//goal")
-      #   goals.xpath("//solutions").remove
-      #   goals.map do |doc|
-      #     attrs = Hash.from_xml(doc.to_xml)["goal"]
-      #     Goal.new(attrs).init_from_deserialization
-      #   end.first
-      # end
+      def parse(doc)
+        doc.xpath("//text()")
+           .select {|i| i.content.match(/$\n\s*/)}
+           .each(&:remove)
+        goal = self.new.init_with(doc.children.first)
+        goal
+      end
 
-      # def load_xml(file_path)
-      #   File.open(file_path, "r") do |file|
-      #     self.parse Nokogiri::XML(file)
-      #   end
-      # end
+      def load_xml(file_path)
+        Goal.instance_variable_set("@all", [])
+        Goal::Solution.instance_variable_set("@all", [])
+
+        File.open(file_path, "r") do |file|
+          self.parse Nokogiri::XML(file)
+        end
+      end
     end
   end
 end

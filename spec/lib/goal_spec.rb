@@ -15,29 +15,6 @@ describe Goal do
     end
   end
 
-  describe Goal::Branch do
-    class DummyElement
-      attr_reader :previous, :next
-
-      def initialize(previous: nil, anext: nil)
-        @previous = previous
-        @next     = anext
-      end
-    end
-
-    let(:dummy1)  {DummyElement.new}
-    let(:dummy2)  {DummyElement.new}
-    let(:head)    {DummyElement.new(anext: dummy1)}
-    let(:tail)    {DummyElement.new(previous: dummy2)}
-    let(:branch1) {Goal::Branch.new(head: head)}
-    let(:branch2) {Goal::Branch.new(tail: tail)}
-
-    describe "#list" do
-      specify {branch1.list.should eq [head, dummy1]}
-      specify {branch2.list.should eq [dummy2, tail]}
-    end
-  end
-
   describe Goal::Add do
     let(:solution) {goal.add_solution}
     let(:head)     {solution.add_head}
@@ -157,26 +134,22 @@ describe Goal do
     end
   end
 
-#   context "XML serialization/deserialization" do
-#     specify do
-#       goal = Goal.new
-#       goal.start.create
-#       goal.end.create
-#       Goal.add_after(goal.start.first)
-#       Goal.add_before(goal.end.first)
-#       goal.start.first.next.link(goal.end.first.previous)
+  context "XML serialization/deserialization" do
+    specify do
+      goal = Goal.new
+      solution = goal.add_solution
+      solution.add_head
+      solution.add_tail
+      solution.head.add_after
+      solution.tail.add_before
+      solution.head.next.link(solution.tail.previous)
 
-#       xml = goal.to_xml
+      xml   = goal.to_xml
+      path  = goal.save.path
+      agoal = Goal.load_xml path
 
-#       path = goal.save.path
-#       Goal.instance_variable_set("@all", [])
-#       goal = nil
-
-#       agoal = Goal.load_xml path
-
-#       agoal.to_xml.should eq xml
-#       FileUtils.rm(path)
-#     end
-#   end
-# e
+      agoal.to_xml.should eq xml
+      FileUtils.rm(path)
+    end
+  end
 end

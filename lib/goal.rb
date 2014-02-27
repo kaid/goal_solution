@@ -31,12 +31,36 @@ class Goal
     self.class.all << self
   end
 
+  def previous
+    return @previous if @previous
+
+    if @previous_id == Solution::HEAD
+      @previous = @previous_id
+    else
+      @previous = Goal.find(@previous_id)
+    end
+  end
+
+  def next
+    return @next if @next
+
+    if @next_id == Solution::TAIL
+      @next = @next_id
+    else
+      @next = Goal.find(@next_id)
+    end
+  end
+  
   def previous_id
-    rel_id(:previous)
+    return @previous_id = @previous.id if @previous.is_a?(Goal)
+    return @previous_id = @previous if @previous == Solution::HEAD
+    @previous_id
   end
 
   def next_id
-    rel_id(:next)
+    return @next_id = @next.id if @next.is_a?(Goal)
+    return @next_id = @next if @next == Solution::TAIL
+    @next_id
   end
 
   class << self
@@ -61,7 +85,7 @@ class Goal
 
   def rel_id(type)
     rel = instance_variable_get(:"@#{type}")
-    return rel.id if rel
+    return rel.id if rel.is_a?(Goal)
   end
 
   def randstr(length=8)

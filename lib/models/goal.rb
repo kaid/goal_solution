@@ -1,100 +1,80 @@
-require "bundler"
-Bundler.setup(:default)
-require "pry"
-require "./lib/utils"
-require "./lib/serialization"
-require "./lib/add"
-require "./lib/insert"
-require "./lib/update"
-require "./lib/link"
+require "./config/env"
+require "./lib/models/goal/insert"
+require "./lib/models/goal/serialization"
+require "./lib/models/invalid_operation"
+require "./lib/models/solution"
 
 class Goal
-  include Update
-  include Add
-  include Insert
-  include Link
+  include Mongoid::Document
+  include Mongoid::Timestamps
+  
   include Serialization
   include InvalidOperation::Helpers
-  include Solution::GoalMethods
 
-  attr_reader :id, :name, :desc
-  attr_reader :init_desc, :finish_desc
-  attr_reader :previous, :next
-  attr_reader :previous_id, :next_id
+  field :name,        type: String
+  field :desc,        type: String
+  field :init_desc,   type: String
+  field :finish_desc, type: String  
+  field :prev_id
+  field :next_id
+
+  has_many   :solutions
+  belongs_to :solution
 
   serialize :id, :name, :desc, :init_desc,
-            :finish_desc, :previous_id, :next_id
+            :finish_desc, :prev_id, :next_id
 
-  def initialize(attrs = {})
-    self.update(attrs)
-    @id = randstr if @id.nil?
-    self.class.all << self
+  before_destroy do |goal|
+    binding.pry
+    prv, nxt = goal.prev, goal.next
+    nxt.prev = prv if nxt.is_a?(Goal)
+    prv.next = nxt if prv.is_a?(Goal)
   end
 
-  def previous
-    return @previous if @previous
-
-    if @previous_id == Solution::HEAD
-      @previous = @previous_id
-    else
-      @previous = Goal.find(@previous_id)
-    end
+  def prev
+    return if self.prev_id.nil? || self.solution.nil?
+    return self.solution.begin if self.prev_id == self.solution.begin.id
+    Goal.find(self.prev_id)
   end
 
   def next
-    return @next if @next
-
-    if @next_id == Solution::TAIL
-      @next = @next_id
-    else
-      @next = Goal.find(@next_id)
-    end
-  end
-  
-  def previous_id
-    return @previous_id = @previous.id if @previous.is_a?(Goal)
-    return @previous_id = @previous if @previous == Solution::HEAD
-    @previous_id
+    return if self.next_id.nil? || self.solution.nil?
+    return self.solution.end if self.next_id == self.solution.end.id
+    Goal.find(self.next_id)
   end
 
-  def next_id
-    return @next_id = @next.id if @next.is_a?(Goal)
-    return @next_id = @next if @next == Solution::TAIL
-    @next_id
+  def prev=(goal)
+    set_rel(:prev, goal)
   end
 
-  class << self
-    def all
-      @all ||= []
-    end
+  def next=(goal)
+    set_rel(:next, goal)
+  end
 
-    def current
-      @current
-    end
+  def insert=(insrt)
+    Insert.new(self, insrt[:direction], insrt[:target]).run
+  end
 
-    def current=(goal)
-      @current = goal
-    end
+  def create_solution
+    self.solutions.create
+  end
 
-    def find(id)
-      self.all.detect {|goal| goal.id == id}
-    end
+  def opposite(which)
+    return :next if which == :prev
+    :prev if which == :next
   end
 
   private
 
-  def rel_id(type)
-    rel = instance_variable_get(:"@#{type}")
-    return rel.id if rel.is_a?(Goal)
-  end
+  def set_rel(which, goal)
+    awhich = opposite(which)
 
-  def randstr(length=8)
-    base = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    size = base.size
-    re = '' << base[rand(size-10)]
-    (length - 1).times {
-      re << base[rand(size)]
-    }
-    re
+    goal_id = goal && goal.id
+    self.send("#{which}_id=", goal_id)
+    if goal.is_a?(Goal)
+      goal.send("#{awhich}_id=", self.id);goal.save if goal.persisted?
+    end;self.save if self.persisted?
+    binding.pry
+    goal
   end
 end

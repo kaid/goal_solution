@@ -1,17 +1,41 @@
 class Goal
-  module Insert
-    def insert_between(goal)
-      invalid = self.next != goal || goal.previous != self
-      invalid_op("::add_between") {invalid}
-      new_goal = self.class.new(:previous => self, :next => goal)
-      self.next = new_goal
-      goal.previous = new_goal
+  class Insert
+    attr_reader :insertion, :solution, :direction, :target
+
+    def initialize(insertion, direction, target)
+      @insertion = insertion
+      @solution  = insertion.solution
+      @direction = direction
+      @target    = target
     end
 
-    def remove
-      self.next.previous = self.previous if self.next
-      self.previous.next = self.next if self.previous
-      self.class.all.delete_if {|goal| goal.id == self.id}
+    def pair
+      rels = [:prev, :next]
+
+      case direction.to_s
+      when "before" then rels
+      when "after"  then rels.reverse
+      end
+    end
+
+    def run
+      which1, which2 = pair
+
+      insertion.send("#{which1}_id=",  target.send("#{which1}_id"))
+      insertion.send("#{which2}_id=", target.id)
+      insertion.save
+
+      if target.is_a?(Goal)
+        target.send("#{which1}_id=", insertion.id)
+        target.save
+      end
+
+      if target.send("#{which1}").is_a?(Goal)
+        target.send("#{which1}").send("#{which2}_id=", insertion.id)
+        target.send("#{which1}").save
+      end
+
+      insertion
     end
   end
 end

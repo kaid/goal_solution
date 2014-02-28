@@ -49,12 +49,12 @@ class Goal
         self
       end
 
-      def save
-        path = File.expand_path("../../goals/#{self.id}.xml", __FILE__)
-        File.open(path, "w") do |f|
-          f << self.to_xml
-        end
-      end
+      # def save
+      #   path = File.expand_path("../../goals/#{self.id}.xml", __FILE__)
+      #   File.open(path, "w") do |f|
+      #     f << self.to_xml
+      #   end
+      # end
     end
 
     module ClassMethods

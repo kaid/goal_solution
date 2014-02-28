@@ -21,8 +21,8 @@ class Goal
   has_many   :solutions
   belongs_to :solution
 
-  serialize :id, :name, :desc, :init_desc,
-            :finish_desc, :prev_id, :next_id
+  # serialize :id, :name, :desc, :init_desc,
+  #           :finish_desc, :prev_id, :next_id
 
   before_destroy do |goal|
     binding.pry

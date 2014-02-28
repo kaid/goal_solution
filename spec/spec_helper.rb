@@ -1,4 +1,5 @@
 require "bundler"
+require "./lib/app"
 require "./lib/models/goal"
 Bundler.require(:test)
 require "pry"

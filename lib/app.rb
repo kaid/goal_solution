@@ -2,9 +2,11 @@
 require "bundler"
 Bundler.setup(:default)
 require "sinatra"
+require "sinatra/json"
 require "sinatra/reloader"
 
 class GoalSolution < Sinatra::Base
+  helpers Sinatra::JSON
   configure :development do
     register Sinatra::Reloader
   end
@@ -13,7 +15,8 @@ class GoalSolution < Sinatra::Base
     "世界你好！"
   end
 
-  get "/do" do
+  put "/do" do
+    p params
     case params["action"]
     when "add_solution"
       add_solution(params["params"]["goal_id"])
@@ -33,26 +36,30 @@ class GoalSolution < Sinatra::Base
   def add_solution(goal_id)
     goal = Goal.find(goal_id)
     solution = goal.create_solution
-    {:solution_id => solution.id}
+    json :solution_id => solution.id
   end
 
   def remove_solution(solution_id)
     solution = Solution.find(solution_id)
     solution.destroy
-    {:status => 'ok'}
+    json :status => 'ok'
   end
 
   def add_goal(solution_id, name, direction, target)
+    if solution_id.blank?
+      goal = Goal.create(:name => name)
+      return json :goal_id => goal.id
+    end
     solution = Solution.find(solution_id)
     goal = solution.create_goal(
       :name => name, :direction => direction, :target => target
     )
-    {:goal_id => goal.id}
+    json :goal_id => goal.id
   end
 
   def remove_goal(goal_id)
     goal = Goal.find(goal_id)
     goal.destroy
-    {:status => 'ok'}
+    json :status => 'ok'
   end
 end

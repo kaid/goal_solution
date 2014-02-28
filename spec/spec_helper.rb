@@ -1,3 +1,4 @@
+ENV['RACK_ENV'] = 'test'
 require "bundler"
 require "./lib/app"
 require "./lib/models/goal"
@@ -10,4 +11,16 @@ module RSpecMixin
   include Rack::Test::Methods
   def app() GoalSolution end
 end
-RSpec.configure { |c| c.include RSpecMixin }
+RSpec.configure do |config|
+
+  config.include RSpecMixin
+
+  config.before :each do
+    DatabaseCleaner[:mongoid].strategy = :truncation
+    DatabaseCleaner[:mongoid].start
+  end
+
+  config.after :each do
+    DatabaseCleaner[:mongoid].clean
+  end
+end

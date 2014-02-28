@@ -1,14 +1,8 @@
 require "spec_helper"
 
-describe Solution do
-  describe "#create_goal(name: name, direction: direction, target: target)" do
-    
-  end
-end
-
 describe Goal do
   let(:master)   {Goal.create}
-  let(:solution) {Solution.create}
+  let(:solution) {master.solutions.create}
   let(:goal1)    {solution.goals.create}
   let(:goal2)    {solution.goals.create}
 

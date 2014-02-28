@@ -14,11 +14,34 @@ class Goal
         end.to_xml
       end
 
-      def fields_xml(builder)
+      def json
+        hash = {}
+
+        fields_json(hash)
+
+        if self.solutions.any?
+          hash["solutions"] = self.solutions.map do |solution|
+            solution.goals.map(&:json)
+          end
+        end
+
+        hash
+      end
+
+      def fields_with(&block)
         self.class.serialize_fields.each do |field|
           value = self.send(field)
-          builder.send("#{field}_", value) if value
+          block.call(field, value)
         end
+      end
+
+      def fields_json(hash)
+        fields_with {|field, value| hash[field] = value}
+        hash.delete_if {|k, v| v.blank?}
+      end
+
+      def fields_xml(builder)
+        fields_with {|field, value| builder.send("#{field}_", value) if value}
       end
 
       def xml_with(builder)

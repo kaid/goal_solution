@@ -1,0 +1,6 @@
+development:
+  sessions:
+    default:
+      database: mongoid
+      hosts:
+        - 10.211.55.8:27017

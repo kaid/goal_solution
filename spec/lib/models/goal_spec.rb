@@ -4,14 +4,14 @@ describe Goal do
   let(:goal) {Goal.new}
   subject    {goal}
 
-  describe Goal::Solution do
+  describe Solution do
     let(:solution) {goal.add_solution}
 
     describe "#attach_to(goal)" do
       subject {solution}
 
       its(:master) {should be goal}
-      specify {Goal::Solution.all.should include solution}
+      specify {Solution.all.should include solution}
     end
   end
 

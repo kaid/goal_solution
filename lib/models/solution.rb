@@ -1,8 +1,10 @@
 require "./lib/models/solution/begin_end"
+require "./lib/models/solution/serialization"
 
 class Solution
   include Mongoid::Document
   include Mongoid::Timestamps
+  include Serialization
   include InvalidOperation::Helpers
 
   has_many   :goals

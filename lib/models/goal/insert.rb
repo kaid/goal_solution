@@ -25,14 +25,15 @@ class Goal
       insertion.send("#{which2}_id=", target.id)
       insertion.save
 
+      sibling = target.send("#{which1}")
+      if sibling.is_a?(Goal)
+        sibling.send("#{which2}_id=", insertion.id)
+        sibling.save
+      end
+
       if target.is_a?(Goal)
         target.send("#{which1}_id=", insertion.id)
         target.save
-      end
-
-      if target.send("#{which1}").is_a?(Goal)
-        target.send("#{which1}").send("#{which2}_id=", insertion.id)
-        target.send("#{which1}").save
       end
 
       insertion

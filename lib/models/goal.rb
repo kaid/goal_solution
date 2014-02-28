@@ -7,8 +7,7 @@ require "./lib/models/solution"
 class Goal
   include Mongoid::Document
   include Mongoid::Timestamps
-  
-  #include Serialization
+  include Serialization
   include InvalidOperation::Helpers
 
   field :name,        type: String
@@ -21,8 +20,8 @@ class Goal
   has_many   :solutions
   belongs_to :solution
 
-  # serialize :id, :name, :desc, :init_desc,
-  #           :finish_desc, :prev_id, :next_id
+  serialize :id, :name, :desc, :init_desc,
+            :finish_desc, :prev_id, :next_id
 
   before_destroy do |goal|
     binding.pry

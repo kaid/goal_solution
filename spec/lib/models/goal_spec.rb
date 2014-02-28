@@ -1,13 +1,46 @@
 require "spec_helper"
 
 describe Solution do
-  describe "#attach_to(goal)" do
-    pending
+  describe "#create_goal(name: name, direction: direction, target: target)" do
+    
   end
 end
 
 describe Goal do
+  let(:master)   {Goal.create}
+  let(:solution) {Solution.create}
+  let(:goal1)    {solution.goals.create}
+  let(:goal2)    {solution.goals.create}
 
+  describe "#prev=(goal)" do
+    let(:op1) {goal1.prev = goal2}
+    let(:op2) {goal2.prev = solution.begin}
+
+    specify {expect{op1}.to change{goal1.prev}.from(nil).to(goal2)}
+    specify {expect{op1}.to change{goal2.next}.from(nil).to(goal1)}
+    specify {expect{op1}.to change{goal1.prev_id}.from(nil).to(goal2.id)}
+    specify {expect{op1}.to change{goal2.next_id}.from(nil).to(goal1.id)}
+
+    specify {expect{op2}.to change{goal2.prev}.from(nil).to(solution.begin)}
+    specify {expect{op2}.to change{solution.begin.next}.from(nil).to(goal2)}
+    specify {expect{op2}.to change{goal2.prev_id}.from(nil).to(solution.begin.id)}
+    specify {expect{op2}.to change{solution.begin.next_id}.from(nil).to(goal2.id)}
+  end
+
+  describe "#next=(goal)" do
+    let(:op1) {goal1.next = goal2}
+    let(:op2) {goal2.next = solution.end}
+
+    specify {expect{op1}.to change{goal1.next}.from(nil).to(goal2)}
+    specify {expect{op1}.to change{goal2.prev}.from(nil).to(goal1)}
+    specify {expect{op1}.to change{goal1.next_id}.from(nil).to(goal2.id)}
+    specify {expect{op1}.to change{goal2.prev_id}.from(nil).to(goal1.id)}
+
+    specify {expect{op2}.to change{goal2.next}.from(nil).to(solution.end)}
+    specify {expect{op2}.to change{solution.end.prev}.from(nil).to(goal2)}
+    specify {expect{op2}.to change{goal2.next_id}.from(nil).to(solution.end.id)}
+    specify {expect{op2}.to change{solution.end.prev_id}.from(nil).to(goal2.id)}
+  end
 
   # describe Goal::Add do
   #   let(:solution) {goal.add_solution}
@@ -128,22 +161,22 @@ describe Goal do
   #   end
   # end
 
-  context "XML serialization/deserialization" do
-    specify do
-      goal = Goal.new
-      solution = goal.add_solution
-      solution.add_head
-      solution.add_tail
-      solution.head.add_after
-      solution.tail.add_before
-      solution.head.next.link(solution.tail.previous)
+  # context "XML serialization/deserialization" do
+  #   specify do
+  #     goal = Goal.new
+  #     solution = goal.add_solution
+  #     solution.add_head
+  #     solution.add_tail
+  #     solution.head.add_after
+  #     solution.tail.add_before
+  #     solution.head.next.link(solution.tail.previous)
 
-      xml   = goal.to_xml
-      path  = goal.save.path
-      agoal = Goal.load_xml path
+  #     xml   = goal.to_xml
+  #     path  = goal.save.path
+  #     agoal = Goal.load_xml path
 
-      agoal.to_xml.should eq xml
-      FileUtils.rm(path)
-    end
-  end
+  #     agoal.to_xml.should eq xml
+  #     FileUtils.rm(path)
+  #   end
+  # end
 end

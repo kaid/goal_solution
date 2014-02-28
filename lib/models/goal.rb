@@ -8,7 +8,7 @@ class Goal
   include Mongoid::Document
   include Mongoid::Timestamps
   
-  include Serialization
+  #include Serialization
   include InvalidOperation::Helpers
 
   field :name,        type: String
@@ -74,7 +74,7 @@ class Goal
     if goal.is_a?(Goal)
       goal.send("#{awhich}_id=", self.id);goal.save if goal.persisted?
     end;self.save if self.persisted?
-    binding.pry
+
     goal
   end
 end

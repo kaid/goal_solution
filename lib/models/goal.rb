@@ -24,7 +24,6 @@ class Goal
             :finish_desc, :prev_id, :next_id
 
   before_destroy do |goal|
-    binding.pry
     prv, nxt = goal.prev, goal.next
     nxt.prev = prv if nxt.is_a?(Goal)
     prv.next = nxt if prv.is_a?(Goal)
@@ -61,23 +60,6 @@ class Goal
   def opposite(which)
     return :next if which == :prev
     :prev if which == :next
-  end
-
-  def to_xml(options = {})
-    attrs = attributes.map do |key, value|
-      next if value.nil?;key
-    end.compact - %w(_id created_at updated_at solution_id) + [:id]
-
-    options.merge!({
-      skip_instruct: true,
-      dasherize: false,
-      skip_types: true,
-      include: [:solutions],
-      only: attrs,
-      methods: [:id]
-    })
-
-    super(options)
   end
 
   private

@@ -1,0 +1,481 @@
+default_skin: conversation_v1
+init_state_name: intro
+param_changes:
+- customization_args:
+    parse_with_jinja: true
+    value: iphone
+  generator_id: Copier
+  name: devtype
+param_specs:
+  dev:
+    obj_type: UnicodeString
+  devtype:
+    obj_type: UnicodeString
+schema_version: 2
+states:
+  check-mobile-device-type:
+    content:
+    - type: text
+      value: "\u5E38\u89C1\u7684\u667A\u80FD\u624B\u673A\u5305\u62EC iPhone \u667A\
+        \u80FD\u624B\u673A\u548C \u5B89\u5353(Android) \u667A\u80FD\u624B\u673A. \u8BF7\
+        \u95EE\u4F60\u4F7F\u7528\u54EA\u4E00\u79CD?<br>"
+    param_changes: []
+    widget:
+      customization_args:
+        choices:
+          value:
+          - "\u6211\u4F7F\u7528 \u5B89\u5353(Android) \u667A\u80FD\u624B\u673A"
+          - "\u6211\u4F7F\u7528 iPhone \u667A\u80FD\u624B\u673A"
+          - "\u6211\u4E0D\u786E\u5B9A\u3002\u3002\u3002"
+      handlers:
+      - name: submit
+        rule_specs:
+        - definition:
+            inputs:
+              x: 0
+            name: Equals
+            rule_type: atomic
+            subject: answer
+          dest: the-android-and-web-weixin-method
+          feedback:
+          - "\u597D\u7684, \u8BF7\u770B\u4E0B\u9762\u7684\u64CD\u4F5C\u6B65\u9AA4\
+            , \u5229\u7528\u5B83\u4EEC\u5C31\u53EF\u4EE5\u628A\u7535\u8111\u4E0A\u7684\
+            \u6587\u5B57\u590D\u5236\u5230\u667A\u80FD\u624B\u673A\u3002"
+          param_changes: []
+        - definition:
+            inputs:
+              x: 1
+            name: Equals
+            rule_type: atomic
+            subject: answer
+          dest: the-iphone-and-web-weixin-method
+          feedback:
+          - "OK, \u8BF7\u4E86\u89E3\u4E0B\u9762\u7684\u6B65\u9AA4, \u5229\u7528\u5B83\
+            \u4EEC\u5C31\u53EF\u4EE5\u628A\u7535\u8111\u4E0A\u7684\u6587\u5B57\u590D\
+            \u5236\u5230\u667A\u80FD\u624B\u673A\u3002<br>"
+          param_changes: []
+        - definition:
+            inputs:
+              x: 2
+            name: Equals
+            rule_type: atomic
+            subject: answer
+          dest: the-iphone-and-web-weixin-method
+          feedback:
+          - "\u8FD9\u4E0D\u8981\u7D27\uFF0C\u8FD9\u9879\u6280\u5DE7\u7684\u4E3B\u8981\
+            \u64CD\u4F5C\u6B65\u9AA4\u5927\u540C\u5C0F\u5F02\u3002\u4E0B\u9762\u6211\
+            \u4EEC\u5C31\u4EE5 iPhone \u4E3A\u4F8B\u5F00\u59CB\u8BB2\u89E3\u3002<br>"
+          param_changes: []
+        - definition:
+            rule_type: default
+          dest: check-mobile-device-type
+          feedback: []
+          param_changes: []
+      sticky: false
+      widget_id: MultipleChoiceInput
+  find-weixin-file-transfer-helper:
+    content:
+    - type: text
+      value: "\u5728\u4F60\u7684 iPhone \u597D\u53CB\u5217\u8868\u4E2D\uFF0C\u6709\
+        \u4E00\u4E2A\u4E13\u95E8\u8D1F\u8D23\u5728\u7535\u8111\u548C iPhone \u4E4B\
+        \u95F4\u4F20\u9012\u6587\u5B57/\u56FE\u7247\u7684 <b>[\u6587\u4EF6\u4F20\u8F93\
+        \u52A9\u624B]</b>\uFF0C\u53EA\u8981\u627E\u5230\u4E86\u5B83\u5C31\u80FD\u4F20\
+        \u6587\u5B57/\u4F20\u56FE\u7247\u4E86\uFF01\u4E0B\u56FE\u662F iPhone \u5FAE\
+        \u4FE1\u76F8\u5173\u754C\u9762\u7684\u622A\u56FE\uFF1A <br><br><oppia-noninteractive-image\
+        \ filepath-with-value=\"&amp;quot;iphone-weixin-file-transfer-helper1.jpeg&amp;quot;\"\
+        ></oppia-noninteractive-image><br><span class=\"\"></span><br>\u4E0E\u6B64\
+        \u540C\u65F6\uFF0C\u8BF7\u6CE8\u610F\u7F51\u9875\u7248\u5FAE\u4FE1\u91CC\u4E5F\
+        \u80FD\u627E\u5230 <b>[\u6587\u4EF6\u4F20\u8F93\u52A9\u624B]</b>\u3002\u5728\
+        \u540E\u9762\u7D27\u63A5\u7740\u7684\u6B65\u9AA4\u91CC\uFF0C\u8FD9\u4E24\u4E2A\
+        \u5730\u65B9\u7684 <b>[\u6587\u4EF6\u4F20\u8F93\u52A9\u624B]</b> \u90FD\u4F1A\
+        \u8D77\u4F5C\u7528\u3002\u4E0B\u56FE\u662F\u5FAE\u4FE1\u7F51\u9875\u7248\u76F8\
+        \u5173\u754C\u9762\u7684\u622A\u56FE\uFF1A<br><br><oppia-noninteractive-image\
+        \ filepath-with-value=\"&amp;quot;web-weixin-chat.jpeg&amp;quot;\"></oppia-noninteractive-image><br>"
+    param_changes: []
+    widget:
+      customization_args:
+        choices:
+          value:
+          - "\u641E\u5B9A\u4E86\uFF0C\u7EE7\u7EED\uFF01"
+          - "\u6211\u60F3\u56DE\u5934\u770B\u770B\u524D\u9762\u7684\u6B65\u9AA4\u3002\
+            \u3002\u3002"
+      handlers:
+      - name: submit
+        rule_specs:
+        - definition:
+            inputs:
+              x: 0
+            name: Equals
+            rule_type: atomic
+            subject: answer
+          dest: transfer-text-between-pc-and-phone
+          feedback:
+          - "\u63A5\u4E0B\u6765\u8FDB\u5165\u6700\u540E\u4E00\u4E2A\u6B65\u9AA4\uFF0C\
+            \u5728\u7535\u8111\u548C iPhone \u4E4B\u95F4\u4E92\u4F20\u6587\u5B57\u3002\
+            <br>"
+          param_changes: []
+        - definition:
+            inputs:
+              x: 1
+            name: Equals
+            rule_type: atomic
+            subject: answer
+          dest: the-iphone-and-web-weixin-method
+          feedback:
+          - "\u597D\u7684\uFF0C\u8BA9\u6211\u4EEC\u56DE\u5230\u9488\u5BF9 iPhone \u7684\
+            \u64CD\u4F5C\u6B65\u9AA4\u5217\u8868\u3002<br>"
+          param_changes: []
+        - definition:
+            rule_type: default
+          dest: transfer-text-between-pc-and-phone
+          feedback:
+          - "\u63A5\u4E0B\u6765, \u5C31\u53EF\u4EE5\u5728\u7535\u8111\u548C\u624B\u673A\
+            \u4E4B\u95F4\u4E92\u4F20\u6587\u5B57/\u56FE\u7247\u4E86!<br>"
+          param_changes: []
+      sticky: false
+      widget_id: MultipleChoiceInput
+  intro:
+    content:
+    - type: text
+      value: "\u7535\u8111\u7684\u5C4F\u5E55\u5927\uFF0C\u952E\u76D8\u9F20\u6807\u64CD\
+        \u4F5C\u5FEB\uFF0C\u67E5\u8D44\u6599\u5F88\u65B9\u4FBF\uFF1B\u667A\u80FD\u624B\
+        \u673A\u4E0A\u6709\u5FAE\u535A\u3001\u5FAE\u4FE1\uFF0C\u8054\u7CFB\u4EBA\u591A\
+        \uFF0C\u4E0E\u597D\u53CB\u5206\u4EAB\u8D44\u6599\u5F88\u65B9\u4FBF\u3002\u53EF\
+        \u662F\u3002\u3002\u3002\u600E\u6837\u624D\u80FD\u628A\u7535\u8111\u4E0A\u7684\
+        \u6587\u5B57\u5FEB\u901F\u642C\u8FD0\u5230\u624B\u673A\u4E0A\uFF1F<br><br><div><oppia-noninteractive-image\
+        \ filepath-with-value=\"&amp;quot;pc-2-mobile.jpeg&amp;quot;\"></oppia-noninteractive-image></div><div><br></div><div>\u53CD\
+        \u8FC7\u6765\uFF0C\u53C8\u8BE5\u600E\u4E48\u505A\uFF1F</div><div><br></div><div><oppia-noninteractive-image\
+        \ filepath-with-value=\"&amp;quot;mobile-2-pc.jpeg&amp;quot;\"></oppia-noninteractive-image><br><br>\u8FD9\
+        \u4E2A\u6559\u7A0B\u7684\u76EE\u7684\uFF0C\u5C31\u662F\u8BA9\u5927\u5BB6\u638C\
+        \u63E1\u3010\u5728\u7535\u8111\u548C\u667A\u80FD\u624B\u673A\u4E4B\u95F4\u642C\
+        \u8FD0\u8D44\u6599\u3011\u7684\u5C0F\u6280\u5DE7\u3002\u90A3\u4E48\uFF0C\u6211\
+        \u4EEC\u5F00\u59CB\u5427\uFF01<br></div>"
+    param_changes: []
+    widget:
+      customization_args:
+        buttonText:
+          value: Continue
+      handlers:
+      - name: submit
+        rule_specs:
+        - definition:
+            rule_type: default
+          dest: check-mobile-device-type
+          feedback:
+          - "\u9996\u5148, \u6211\u4EEC\u9700\u8981\u4E86\u89E3\u4E00\u4E0B\u4F60\u4F7F\
+            \u7528\u7684\u667A\u80FD\u624B\u673A\u7C7B\u578B\u3002<br>"
+          param_changes: []
+      sticky: false
+      widget_id: Continue
+  launch-weixin-on-android-phone:
+    content:
+    - type: text
+      value: ''
+    param_changes: []
+    widget:
+      customization_args: {}
+      handlers:
+      - name: submit
+        rule_specs:
+        - definition:
+            rule_type: default
+          dest: open-web-weixin-in-browser
+          feedback:
+          - "\u63A5\u4E0B\u6765, \u6253\u5F00\u5FAE\u4FE1\u7F51\u9875\u7248\u7684\u5165\
+            \u53E3<br>"
+          param_changes: []
+      sticky: false
+      widget_id: TextInput
+  launch-weixin-on-iphone:
+    content:
+    - type: text
+      value: "\u6253\u5F00 iPhone \u4E0A\u7684\u5FAE\u4FE1\u5E94\u7528\u5F88\u7B80\
+        \u5355\uFF0C\u53EA\u8981\u5728 iPhone \u4E3B\u5C4F\u5E55\u4E0A\u627E\u5230\
+        \u5FAE\u4FE1\u7684\u56FE\u6807\uFF0C\u5E76\u4E14\u70B9\u51FB\u5C31\u53EF\u4EE5\
+        \u4E86\u3002\u6B63\u5E38\u7684\u767B\u5F55\u8FC7\u7A0B\u5982\u4E0B\u56FE\u6240\
+        \u793A\uFF1A<br><br><oppia-noninteractive-image filepath-with-value=\"&amp;quot;iphone-weixin-pre-login.jpeg&amp;quot;\"\
+        ></oppia-noninteractive-image><br><br><span class=\"\"><span class=\"\"></span></span><span\
+        \ class=\"\"></span>\u767B\u5F55\u540E\u8BF7\u76F4\u63A5\u8F6C\u5230 <b>[\u53D1\
+        \u73B0]</b> \u8FD9\u4E00\u680F\uFF0C\u5E76\u8BF7\u6CE8\u610F <b>[\u626B\u4E00\
+        \u626B]</b> \u8FD9\u4E2A\u83DC\u5355\u9879\uFF0C\u540E\u9762\u7684\u6B65\u9AA4\
+        \u91CC\u4F1A\u7528\u5230\u3002\uFF08\u8FD9\u4E2A\u6559\u7A0B\u662F\u9488\u5BF9\
+        \u5FAE\u4FE1 5.2 \u7248\u6765\u8BF4\u7684\uFF09<br><br><oppia-noninteractive-image\
+        \ filepath-with-value=\"&amp;quot;weixin-discover.jpeg&amp;quot;\"></oppia-noninteractive-image><br><br>\u8FD9\
+        \u4E2A\u6B65\u9AA4\u7684\u8BB2\u89E3\u5C31\u8FD9\u4E48\u591A\uFF0C\u8BF7\u81EA\
+        \u5DF1\u4EB2\u624B\u8BD5\u8BD5\u770B\u5427\uFF01<br>"
+    param_changes: []
+    widget:
+      customization_args:
+        choices:
+          value:
+          - "\u641E\u5B9A\u4E86\uFF0C\u7EE7\u7EED\uFF01"
+          - "\u6211\u8FD8\u60F3\u770B\u770B\u524D\u9762\u7684\u6B65\u9AA4\u3002\u3002"
+      handlers:
+      - name: submit
+        rule_specs:
+        - definition:
+            inputs:
+              x: 0
+            name: Equals
+            rule_type: atomic
+            subject: answer
+          dest: open-web-weixin-in-browser
+          feedback:
+          - "\u597D\u7684\uFF0C\u63A5\u4E0B\u6765\u5C06\u8BF4\u660E\u5982\u4F55\u6253\
+            \u5F00\u7535\u8111\u4E0A\u7684\u5FAE\u4FE1\u7F51\u9875\u7248\u3002"
+          param_changes: []
+        - definition:
+            inputs:
+              x: 1
+            name: Equals
+            rule_type: atomic
+            subject: answer
+          dest: the-iphone-and-web-weixin-method
+          feedback:
+          - "\u597D\u7684\uFF0C\u8BA9\u6211\u4EEC\u56DE\u5230\u9488\u5BF9 iPhone \u7684\
+            \u64CD\u4F5C\u6B65\u9AA4\u5217\u8868\u3002<br>"
+          param_changes: []
+        - definition:
+            rule_type: default
+          dest: open-web-weixin-in-browser
+          feedback:
+          - "\u63A5\u4E0B\u6765\uFF0C\u8BA9\u6211\u4EEC\u5728\u7535\u8111\u4E0A\u6253\
+            \u5F00\u5FAE\u4FE1\u7F51\u9875\u7248."
+          param_changes: []
+      sticky: false
+      widget_id: MultipleChoiceInput
+  login-web-weixin-via-qrcode-scanner:
+    content:
+    - type: text
+      value: "\u5FAE\u4FE1\u7684\u4E8C\u7EF4\u7801\u626B\u63CF\u5DE5\u5177\uFF0C\u53EF\
+        \u4EE5\u524D\u9762\u7684\u6B65\u9AA4\u4E2D\u66FE\u7ECF\u63D0\u5230\u8FC7\u7684\
+        \uFF0C<b>[\u53D1\u73B0]</b> \u680F\u76EE\u4E2D\u7684 <b>[\u626B\u4E00\u626B\
+        ]</b> \u83DC\u5355\u9879\u542F\u52A8\u3002\u626B\u63CF\u5DE5\u5177\u6B63\u5E38\
+        \u5DE5\u4F5C\u65F6\uFF0C\u5728 iPhone \u5C4F\u5E55\u4E2D\u53EF\u4EE5\u770B\
+        \u5230\u4EE5\u4E0B\u5185\u5BB9\uFF1A<br><br><oppia-noninteractive-image filepath-with-value=\"\
+        &amp;quot;weixin-discover-qrscan.jpeg&amp;quot;\"></oppia-noninteractive-image><br><br>\u63A5\
+        \u4E0B\u6765\uFF0C\u53EA\u8981\u628A\u626B\u63CF\u533A\u57DF\u5BF9\u51C6\u5FAE\
+        \u4FE1\u7F51\u9875\u7248\u4E0A\u7684\u4E8C\u7EF4\u7801\uFF0C\u5C31\u53EF\u4EE5\
+        \u8FDB\u5165\u5FAE\u4FE1\u7F51\u9875\u7248\u767B\u5F55\u754C\u9762\u4E86\uFF0C\
+        \u6548\u679C\u56FE\u5982\u4E0B\uFF1A<br><br><oppia-noninteractive-image filepath-with-value=\"\
+        &amp;quot;web-weixin-qrcode-scanned.jpeg&amp;quot;\"></oppia-noninteractive-image><br><br>\u70B9\
+        \u51FB <b>[\u6211\u786E\u8BA4\u767B\u5F55\u5FAE\u4FE1\u7F51\u9875\u7248]</b>\
+        \ \u5C31\u53EF\u4EE5\u6210\u529F\u767B\u5F55\u3002<br>"
+    param_changes: []
+    widget:
+      customization_args:
+        choices:
+          value:
+          - "\u641E\u5B9A\u4E86\uFF0C\u7EE7\u7EED\uFF01"
+          - "\u6211\u60F3\u56DE\u5934\u770B\u770B\u5176\u5B83\u6B65\u9AA4\u3002\u3002\
+            \u3002"
+      handlers:
+      - name: submit
+        rule_specs:
+        - definition:
+            inputs:
+              x: 0
+            name: Equals
+            rule_type: atomic
+            subject: answer
+          dest: find-weixin-file-transfer-helper
+          feedback:
+          - "\u63A5\u4E0B\u6765\uFF0C\u8BA9\u6211\u4EEC\u8BD5\u7740\u627E\u5230 <b>[\u6587\
+            \u4EF6\u4F20\u8F93\u52A9\u624B]</b> \u8FD9\u4E2A\u5FAE\u4FE1\u597D\u53CB\
+            \uFF0C\u5E76\u501F\u52A9\u5B83\u5728 iPhone \u548C\u7535\u8111\u4E4B\u95F4\
+            \u8F6C\u79FB\u6587\u5B57 / \u56FE\u7247\u3002<br>"
+          param_changes: []
+        - definition:
+            inputs:
+              x: 1
+            name: Equals
+            rule_type: atomic
+            subject: answer
+          dest: the-iphone-and-web-weixin-method
+          feedback:
+          - "\u597D\u7684\uFF0C\u8BA9\u6211\u4EEC\u56DE\u5230\u9488\u5BF9 iPhone \u7684\
+            \u64CD\u4F5C\u6B65\u9AA4\u5217\u8868\u3002<br>"
+          param_changes: []
+        - definition:
+            rule_type: default
+          dest: find-weixin-file-transfer-helper
+          feedback:
+          - "\u63A5\u4E0B\u6765, \u6211\u4EEC\u5C06\u5728\u5FAE\u4FE1\u4E2D\u5BFB\u627E\
+            \ <b>[\u6587\u4EF6\u4F20\u8F93\u52A9\u624B]</b> \u8FD9\u4E2A\u597D\u53CB\
+            \u3002<br>"
+          param_changes: []
+      sticky: false
+      widget_id: MultipleChoiceInput
+  open-web-weixin-in-browser:
+    content:
+    - type: text
+      value: "\u5FAE\u4FE1\u7F51\u9875\u7248\u7684\u7F51\u5740\u4E3A: <oppia-noninteractive-link\
+        \ url-with-value=\"&amp;quot;https://wx.qq.com&amp;quot;\"></oppia-noninteractive-link>\
+        \ \u3002\u8BF7\u4F7F\u7528 \u8C37\u6B4C(Chrome) \u6D4F\u89C8\u5668\u6216 \u706B\
+        \u72D0(Firefox) \u6D4F\u89C8\u5668\u6253\u5F00\u8FD9\u4E2A\u7F51\u5740\u3002\
+        \u6B63\u5E38\u6253\u5F00\u5FAE\u4FE1\u7F51\u9875\u7248\u4E4B\u540E\u7684\u6548\
+        \u679C\u5982\u4E0B\u56FE\u6240\u793A:<br><br><oppia-noninteractive-image filepath-with-value=\"\
+        &amp;quot;web-weixin-login.jpeg&amp;quot;\"></oppia-noninteractive-image><span\
+        \ class=\"insertionPoint\"></span>"
+    param_changes: []
+    widget:
+      customization_args:
+        choices:
+          value:
+          - "\u641E\u5B9A\u4E86\uFF0C\u7EE7\u7EED\uFF01"
+          - "\u6211\u8FD8\u60F3\u770B\u770B\u524D\u9762\u7684\u6B65\u9AA4\u3002\u3002"
+      handlers:
+      - name: submit
+        rule_specs:
+        - definition:
+            inputs:
+              x: 0
+            name: Equals
+            rule_type: atomic
+            subject: answer
+          dest: login-web-weixin-via-qrcode-scanner
+          feedback:
+          - "\u63A5\u4E0B\u6765\uFF0C\u6211\u4EEC\u8981\u8BD5\u7740\u5229\u7528 iPhone\
+            \ \u7684\u4E8C\u7EF4\u7801\u626B\u63CF\u5DE5\u5177\u767B\u5F55\u5FAE\u4FE1\
+            \u7F51\u9875\u7248\u3002<br>"
+          param_changes: []
+        - definition:
+            inputs:
+              x: 1
+            name: Equals
+            rule_type: atomic
+            subject: answer
+          dest: the-iphone-and-web-weixin-method
+          feedback:
+          - "\u597D\u7684\uFF0C\u8BA9\u6211\u4EEC\u56DE\u5230\u9488\u5BF9 iPhone \u7684\
+            \u64CD\u4F5C\u6B65\u9AA4\u5217\u8868\u3002"
+          param_changes: []
+        - definition:
+            rule_type: default
+          dest: login-web-weixin-via-qrcode-scanner
+          feedback:
+          - "\u63A5\u4E0B\u6765, \u7528\u5FAE\u4FE1\u7684\u4E8C\u7EF4\u7801\u626B\u63CF\
+            \u5DE5\u5177\u5FEB\u901F\u767B\u5F55\u7F51\u9875\u7248.<br>"
+          param_changes: []
+      sticky: false
+      widget_id: MultipleChoiceInput
+  the-android-and-web-weixin-method:
+    content:
+    - type: text
+      value: "<b>\u64CD\u4F5C\u6B65\u9AA4\u6982\u8981</b><b><br></b>"
+    param_changes:
+    - customization_args:
+        parse_with_jinja: true
+        value: android
+      generator_id: Copier
+      name: devtype
+    widget:
+      customization_args:
+        buttonText:
+          value: Continue
+      handlers:
+      - name: submit
+        rule_specs:
+        - definition:
+            rule_type: default
+          dest: launch-weixin-on-android-phone
+          feedback:
+          - "\u5728\u8FDB\u884C\u540E\u9762\u7684\u64CD\u4F5C\u4E4B\u524D\uFF0C\u9996\
+            \u5148\u8981\u6253\u5F00\u5B89\u5353\u624B\u673A\u4E0A\u7684\u5FAE\u4FE1\
+            \u3002"
+          param_changes: []
+      sticky: false
+      widget_id: Continue
+  the-iphone-and-web-weixin-method:
+    content:
+    - type: text
+      value: "\u5FAE\u4FE1\u6709\u4E00\u4E2A\u7535\u8111\u7F51\u9875\u7248\uFF0C\u5229\
+        \u7528\u5B83\u53EF\u4EE5\u5F88\u65B9\u4FBF\u5730\u5728\u7535\u8111\u548C iPhone\
+        \ \u4E0A\u7684\u5FAE\u4FE1\u4E4B\u95F4\u4E92\u4F20\u6587\u5B57 / \u56FE\u7247\
+        \u3002<br>"
+    param_changes: []
+    widget:
+      customization_args:
+        choices:
+          value:
+          - "\u6253\u5F00 iPhone \u4E0A\u7684\u5FAE\u4FE1\u5E94\u7528"
+          - "\u6253\u5F00\u7535\u8111\u4E0A\u7684\u5FAE\u4FE1\u7F51\u9875\u7248"
+          - "\u5229\u7528 iPhone \u4E0A\u5FAE\u4FE1\u7684\u4E8C\u7EF4\u7801\u5DE5\u5177\
+            \u767B\u5F55\u5FAE\u4FE1\u7F51\u9875\u7248"
+          - "\u5728 iPhone \u5FAE\u4FE1\u548C\u5FAE\u4FE1\u7F51\u9875\u7248\u4E4B\u95F4\
+            \u4E92\u4F20\u56FE\u7247/\u6587\u5B57"
+      handlers:
+      - name: submit
+        rule_specs:
+        - definition:
+            inputs:
+              x: 0
+            name: Equals
+            rule_type: atomic
+            subject: answer
+          dest: launch-weixin-on-iphone
+          feedback:
+          - "\u597D\u7684\uFF0C\u8BA9\u6211\u4EEC\u9996\u5148\u6253\u5F00 iPhone \u4E0A\
+            \u7684\u5FAE\u4FE1\u5E94\u7528\u3002<br>"
+          param_changes: []
+        - definition:
+            inputs:
+              x: 1
+            name: Equals
+            rule_type: atomic
+            subject: answer
+          dest: open-web-weixin-in-browser
+          feedback:
+          - "\u597D\u7684\uFF0C\u63A5\u4E0B\u6765\u8BA9\u6211\u4EEC\u8BD5\u7740\u5728\
+            \u7535\u8111\u4E0A\u6253\u5F00\u5FAE\u4FE1\u7F51\u9875\u7248\u3002"
+          param_changes: []
+        - definition:
+            inputs:
+              x: 2
+            name: Equals
+            rule_type: atomic
+            subject: answer
+          dest: login-web-weixin-via-qrcode-scanner
+          feedback:
+          - "\u597D\u7684\uFF0C\u8BA9\u6211\u4EEC\u8BD5\u7740\u5728\u5FAE\u4FE1\u4E2D\
+            \u4F7F\u7528\u4E8C\u7EF4\u7801\u5DE5\u5177\u767B\u5F55\u7F51\u9875\u7248\
+            \u5FAE\u4FE1\u3002"
+          param_changes: []
+        - definition:
+            inputs:
+              x: 3
+            name: Equals
+            rule_type: atomic
+            subject: answer
+          dest: transfer-text-between-pc-and-phone
+          feedback:
+          - "\u597D\u7684\uFF0C\u8BA9\u6211\u4EEC\u8BD5\u7740\u5728\u7535\u8111\u548C\
+            \ iPhone \u4E4B\u95F4\u4E92\u4F20\u6587\u5B57/\u56FE\u7247\u3002<br>"
+          param_changes: []
+        - definition:
+            rule_type: default
+          dest: launch-weixin-on-iphone
+          feedback:
+          - "\u63A5\u4E0B\u6765\uFF0C\u8BA9\u6211\u4EEC\u5728 iPhone \u4E0A\u6253\u5F00\
+            \u5FAE\u4FE1\u3002"
+          param_changes: []
+      sticky: false
+      widget_id: MultipleChoiceInput
+  transfer-text-between-pc-and-phone:
+    content:
+    - type: text
+      value: ''
+    param_changes: []
+    widget:
+      customization_args: {}
+      handlers:
+      - name: submit
+        rule_specs:
+        - definition:
+            rule_type: default
+          dest: END
+          feedback:
+          - "\u6559\u7A0B\u5230\u6B64\u7ED3\u675F"
+          param_changes: []
+      sticky: false
+      widget_id: TextInput

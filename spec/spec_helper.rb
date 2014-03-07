@@ -1,7 +1,9 @@
+# -*- coding: utf-8 -*-
 ENV['RACK_ENV'] = 'test'
 require "bundler"
 require "./lib/app"
 require "./lib/models/goal"
+require "./lib/models/oppia"
 Bundler.require(:test)
 require "pry"
 

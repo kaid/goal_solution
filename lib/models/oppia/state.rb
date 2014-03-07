@@ -17,5 +17,9 @@ module Oppia
     def contents=(list)
       attr_for(Content, list)
     end
+
+    def content
+      self.contents.first
+    end
   end
 end
